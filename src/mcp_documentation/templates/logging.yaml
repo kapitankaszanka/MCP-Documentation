@@ -1,0 +1,82 @@
+# Logging configuration for mcp-documentation.
+# Schema: Python logging.config.dictConfig (stdlib).
+#
+# Formatters:
+#   - "standard": human-readable, handy during local development.
+#   - "json":     one JSON object per line (python-json-logger) so the file
+#                 can be tailed straight into Filebeat / Logstash -> Elastic
+#                 -> Kibana without any transformation.
+#
+# Handlers wired up:
+#   - console_stderr: pretty text to stderr (always safe).
+#   - console_stdout: pretty text to stdout. DISABLED by default because the
+#                     stdio transport uses stdout for JSON-RPC. Only enable
+#                     when the server is not on stdio.
+#   - file:           JSON lines. The relative path below is rewritten at
+#                     startup to the platform log directory
+#                     (%LOCALAPPDATA%\mcp\mcp-documentation\Logs on Windows,
+#                     ~/.local/state/mcp/mcp-documentation/log on Linux), so it
+#                     works unchanged on both OSes.
+---
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s %(levelname)-8s [%(name)s] %(message)s"
+    datefmt: "%Y-%m-%dT%H:%M:%S%z"
+
+  json:
+    "()": pythonjsonlogger.json.JsonFormatter
+    format: "%(asctime)s %(levelname)s %(name)s %(message)s %(module)s %(funcName)s %(lineno)d %(process)d %(thread)d"
+    rename_fields:
+      asctime: "@timestamp"
+      levelname: level
+      name: logger
+    datefmt: "%Y-%m-%dT%H:%M:%S%z"
+    static_fields:
+      service: mcp-documentation
+
+handlers:
+  console_stderr:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standard
+    stream: ext://sys.stderr
+
+  # WARNING: using stdout while the server runs on stdio transport will
+  # corrupt the JSON-RPC stream. Leave this disabled unless you moved the
+  # server off stdio.
+  console_stdout:
+    class: logging.StreamHandler
+    level: 100   # effectively disabled; drop to INFO when not using stdio
+    formatter: standard
+    stream: ext://sys.stdout
+
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: json
+    filename: mcp-documentation.log
+    maxBytes: 10485760   # 10 MB
+    backupCount: 5
+    encoding: utf-8
+
+
+loggers:
+  mcp_documentation:
+    level: DEBUG
+    handlers: [console_stderr, console_stdout, file]
+    propagate: false
+
+  # Tame noisy third-party libraries.
+  pymupdf:
+    level: WARNING
+  fastmcp:
+    level: INFO
+  mcp:
+    level: INFO
+
+root:
+  level: INFO
+  handlers: [console_stderr, console_stdout, file]

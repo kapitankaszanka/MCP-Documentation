@@ -1,0 +1,6 @@
+---
+db_path: null  # optional — defaults to the platform data dir if unset
+max_search_results: 5
+max_chunks_per_read: 5
+chunk_size: 2048
+chunk_overlap: 254

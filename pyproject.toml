@@ -1,0 +1,91 @@
+[project]
+name = "mcp-documentation"
+version = "0.10.0"
+description = "Model Context Protocol (MCP) server that exposes read-only tools to read documentation."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Mateusz Krupczyński", email = "mkrupczynski@inpost.pl" },
+]
+maintainers = [
+    { name = "Mateusz Krupczyński", email = "mkrupczynski@inpost.pl" },
+]
+dependencies = [
+    "fastmcp>=4.0.0",
+    "pymupdf>=1.24",
+    "platformdirs>=4.2",
+    "python-json-logger>=3.2",
+    "pydantic-settings>=2.15.0",
+    "pyyaml>=6.0.3",
+    "aiosqlite>=0.22.1",
+    "pymupdf4llm>=1.28.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "pyrefly>=1.0",
+    "types-pyyaml>=6.0.12.20260518",
+]
+
+[project.scripts]
+mcp-documentation = "mcp_documentation.cli:main"
+mcp-documentation-ingest = "mcp_documentation.ingest.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10,<0.11"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes (unused imports, variables)
+    "I",      # isort (import ordering)
+    "N",      # pep8-naming conventions
+    "D",      # pydocstyle (docstrings)
+    "T20",    # flake8-print (catches print statements)
+    "B",      # flake8-bugbear (common bugs)
+    "S",      # flake8-bandit (security checks)
+    "SIM",    # flake8-simplify
+    "UP",     # pyupgrade (modernize syntax for 3.12+)
+    "RUF",    # ruff-specific rules
+    "PL",     # pylint
+    "ARG",    # flake8-unused-arguments
+    "ERA",    # eradicate (commented-out code)
+    "PIE",    # flake8-pie (unnecessary pass/placeholders, duplicate keys)
+]
+ignore = [
+    "D100",     # missing docstring in public module
+    "D104",     # missing docstring in public package
+    "D203",     # conflicts with D211 (no-blank-line-before-class)
+    "D212",     # conflicts with D213 (multi-line-summary-first-line)
+    "S101",     # allow assert (useful in pydantic/tests)
+    "PLW0603",  # allow global statement for module-level singletons
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "D"]
+"tests/**" = ["D", "S", "T20", "PLR2004", "ARG"]  # ARG: fixtures used for side effects
+"src/mcp_documentation/server.py" = ["PLR0913"]
+"src/mcp_documentation/documents.py" = ["PLR0913", "PLR0917"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.pyrefly]
+search-path = ["src", "tests"]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+project-excludes = ["build", "dist", ".venv"]

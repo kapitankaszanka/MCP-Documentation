@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[oc]
+*.pyd
+*.so
+*.egg-info
+build/
+dist/
+wheels/
+
+# Virtual environment
+.venv/
+
+# uv
+.uv/
+
+# Environment variables — never commit real secrets
+.env
+.env.*
+!.env.example
+
+# Type checker
+.basedpyright/
+.pyright/
+
+# Ruff
+.ruff_cache/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+
+# Custom files
+CLAUDE.md
+
+files/*
+tmp/*
+dev.py
+mcp_dev.py
+bash/*
+
+# Runtime logs
+logs/
+
